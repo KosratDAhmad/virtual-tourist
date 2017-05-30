@@ -27,6 +27,29 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             let region = MKCoordinateRegionMake(coordinate, span)
             self.mapView.setRegion(region, animated: true)
         }
+        
+        // Create long press gesture recognizer
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.dropPin(gestureRecognizer:)))
+        longPress.minimumPressDuration = 0.5
+
+        mapView.addGestureRecognizer(longPress)
+    }
+    
+    /// Drop a pin on the map when long press gesture detected
+    ///
+    /// - Parameter gestureRecognizer: Long press gesture
+    func dropPin(gestureRecognizer:UIGestureRecognizer){
+
+        let tapPoint = gestureRecognizer.location(in: mapView)
+        let touchMapCoordinate = mapView.convert(tapPoint, toCoordinateFrom: mapView)
+        
+        if .began == gestureRecognizer.state {
+            
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = touchMapCoordinate
+            
+            mapView.addAnnotation(annotation)
+        }
     }
     
     // MARK: Map Delegates
