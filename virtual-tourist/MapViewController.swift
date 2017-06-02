@@ -16,6 +16,10 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let pin = Pin()
+        pin.latitude = 11.11111
+        pin.longitude = 22.2222
+        
         mapView.delegate = self
         
         // Restore saved map region and zoom level from user defaults.
