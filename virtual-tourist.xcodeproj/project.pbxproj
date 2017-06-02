@@ -13,7 +13,7 @@
 		F536B6311EDE045300B6138A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F536B6301EDE045300B6138A /* Assets.xcassets */; };
 		F536B6341EDE045300B6138A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F536B6321EDE045300B6138A /* LaunchScreen.storyboard */; };
 		F5BC13321EE0D0C0002D05A1 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5BC13301EE0D0C0002D05A1 /* Model.xcdatamodeld */; };
-		F5BC13341EE0D137002D05A1 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC13331EE0D137002D05A1 /* CoreDataStack.swift */; };
+		F5BC137D1EE19909002D05A1 /* DbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC137C1EE19909002D05A1 /* DbController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,7 +25,7 @@
 		F536B6331EDE045300B6138A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F536B6351EDE045300B6138A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F5BC13311EE0D0C0002D05A1 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		F5BC13331EE0D137002D05A1 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		F5BC137C1EE19909002D05A1 /* DbController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DbController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,7 +96,7 @@
 		F536B63E1EDE088800B6138A /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				F5BC13331EE0D137002D05A1 /* CoreDataStack.swift */,
+				F5BC137C1EE19909002D05A1 /* DbController.swift */,
 				F5BC13301EE0D0C0002D05A1 /* Model.xcdatamodeld */,
 			);
 			name = Models;
@@ -185,7 +185,7 @@
 				F536B62C1EDE045300B6138A /* MapViewController.swift in Sources */,
 				F536B62A1EDE045300B6138A /* AppDelegate.swift in Sources */,
 				F5BC13321EE0D0C0002D05A1 /* Model.xcdatamodeld in Sources */,
-				F5BC13341EE0D137002D05A1 /* CoreDataStack.swift in Sources */,
+				F5BC137D1EE19909002D05A1 /* DbController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
