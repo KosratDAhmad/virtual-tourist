@@ -35,6 +35,12 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         mapView.addGestureRecognizer(longPress)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        
+        // Get pin data from core data.
+        getData()
+    }
+    
     /// Drop a pin on the map when long press gesture detected
     ///
     /// - Parameter gestureRecognizer: Long press gesture
@@ -49,9 +55,55 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             annotation.coordinate = touchMapCoordinate
             
             mapView.addAnnotation(annotation)
+            
+            // Insert pin into core data.
+            let pin = Pin(context: DbController.getContext())
+            pin.latitude = annotation.coordinate.latitude
+            pin.longitude = annotation.coordinate.longitude
         }
     }
     
+    /// Get pin data from core data.
+    func getData() {
+        
+        do {
+            let pins = try DbController.getContext().fetch(Pin.fetchRequest()) as! [Pin]
+            addPins(pins)
+        } catch {
+            print("No pins found.")
+        }
+    }
+    
+    /// Add pin location annotations to the map
+    ///
+    /// - Parameter locations: List of Pin data object.
+    private func addPins(_ pins: [Pin]) {
+        
+        // We will create an MKPointAnnotation for each dictionary in "pins". The
+        // point annotations will be stored in this array, and then provided to the map view.
+        var annotations = [MKPointAnnotation]()
+        
+        for pin in pins {
+            
+            // This is a version of the Double type.
+            let lat = CLLocationDegrees(pin.latitude)
+            let long = CLLocationDegrees(pin.longitude)
+            
+            // The lat and long are used to create a CLLocationCoordinates2D instance.
+            let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            
+            // Here we create the annotation and set its coordiate.
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = coordinate
+            
+            // Finally we place the annotation in an array of annotations.
+            annotations.append(annotation)
+        }
+        
+        // When the array is complete, we add the annotations to the map.
+        self.mapView.addAnnotations(annotations)
+    }
+
     // MARK: Map Delegates
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
