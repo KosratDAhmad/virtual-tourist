@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class MapViewController: UIViewController, MKMapViewDelegate {
     
@@ -113,5 +114,25 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         UserDefaults.standard.set(mapView.region.center.longitude.description, forKey: "Longitude")
         UserDefaults.standard.set(mapView.region.span.latitudeDelta.description, forKey: "LatitudeDelta")
         UserDefaults.standard.set(mapView.region.span.longitudeDelta.description, forKey: "LongitudeDelta")
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+    
+        let controller = storyboard?.instantiateViewController(withIdentifier: "PhotoView") as! PhotoViewController
+        
+        let cordinate = view.annotation?.coordinate
+        
+        do {
+            let pred = NSPredicate(format: "latitude = %@ and longitude = %@", argumentArray: [cordinate!.latitude, cordinate!.longitude])
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+            fetchRequest.predicate = pred
+            
+            let pins = try DbController.getContext().fetch(fetchRequest) as! [Pin]
+            controller.pin = pins[0]
+            self.navigationController?.pushViewController(controller, animated: true)
+            
+        } catch {
+            print("No pins found.")
+        }
     }
 }

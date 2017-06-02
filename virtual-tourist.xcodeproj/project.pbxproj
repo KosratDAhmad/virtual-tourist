@@ -14,6 +14,7 @@
 		F536B6341EDE045300B6138A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F536B6321EDE045300B6138A /* LaunchScreen.storyboard */; };
 		F5BC13321EE0D0C0002D05A1 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5BC13301EE0D0C0002D05A1 /* Model.xcdatamodeld */; };
 		F5BC137D1EE19909002D05A1 /* DbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC137C1EE19909002D05A1 /* DbController.swift */; };
+		F5BC137F1EE1A70C002D05A1 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC137E1EE1A70C002D05A1 /* PhotoViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		F536B6351EDE045300B6138A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F5BC13311EE0D0C0002D05A1 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		F5BC137C1EE19909002D05A1 /* DbController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DbController.swift; sourceTree = "<group>"; };
+		F5BC137E1EE1A70C002D05A1 /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				F536B62B1EDE045300B6138A /* MapViewController.swift */,
+				F5BC137E1EE1A70C002D05A1 /* PhotoViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -142,6 +145,7 @@
 				TargetAttributes = {
 					F536B6251EDE045300B6138A = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = NW3L46KCK4;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -186,6 +190,7 @@
 				F536B62A1EDE045300B6138A /* AppDelegate.swift in Sources */,
 				F5BC13321EE0D0C0002D05A1 /* Model.xcdatamodeld in Sources */,
 				F5BC137D1EE19909002D05A1 /* DbController.swift in Sources */,
+				F5BC137F1EE1A70C002D05A1 /* PhotoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +315,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = NW3L46KCK4;
 				INFOPLIST_FILE = "virtual-tourist/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kosratdahmad.virtual-tourist";
@@ -322,6 +328,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = NW3L46KCK4;
 				INFOPLIST_FILE = "virtual-tourist/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kosratdahmad.virtual-tourist";
