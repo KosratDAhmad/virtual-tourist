@@ -22,6 +22,8 @@ class PhotoViewController: UIViewController, MKMapViewDelegate {
         
         // Show selected pin on the map.
         addPins()
+        
+        getPhotos();
     }
     
     /// Add pin location annotation to the map
@@ -57,4 +59,24 @@ class PhotoViewController: UIViewController, MKMapViewDelegate {
         self.mapView.setRegion(region, animated: true)
     }
     
+    func getPhotos() {
+        
+        FlickrClient.sharedInstance().getPhotos(bboxString()) { isSuccess, error in
+            
+            print(isSuccess)
+        }
+    }
+    
+    private func bboxString() -> String {
+        // ensure bbox is bounded by minimum and maximums
+        if let latitude = pin?.latitude, let longitude = pin?.longitude {
+            let minimumLon = max(longitude - FlickrClient.Flickr.SearchBBoxHalfWidth, FlickrClient.Flickr.SearchLonRange.0)
+            let minimumLat = max(latitude - FlickrClient.Flickr.SearchBBoxHalfHeight, FlickrClient.Flickr.SearchLatRange.0)
+            let maximumLon = min(longitude + FlickrClient.Flickr.SearchBBoxHalfWidth, FlickrClient.Flickr.SearchLonRange.1)
+            let maximumLat = min(latitude + FlickrClient.Flickr.SearchBBoxHalfHeight, FlickrClient.Flickr.SearchLatRange.1)
+            return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
+        } else {
+            return "0,0,0,0"
+        }
+    }
 }
