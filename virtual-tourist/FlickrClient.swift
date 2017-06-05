@@ -24,7 +24,7 @@ class FlickrClient: NSObject {
     
     // MARK: GET
     
-    func taskForGETMethod(parameters: [String:AnyObject], completionHandlerForGET: @escaping (_ result: AnyObject?, _ error: NSError?) -> Void) -> URLSessionDataTask {
+    func taskForGETMethod(parameters: [String:AnyObject], completionHandler: @escaping (_ result: [String:AnyObject]?, _ error: NSError?) -> Void) -> URLSessionDataTask {
         
         // Build the URL, configure the request
         let request = NSMutableURLRequest(url: flickrURLFromParameters(parameters))
@@ -35,7 +35,7 @@ class FlickrClient: NSObject {
             func sendError(_ error: String) {
                 print(error)
                 let userInfo = [NSLocalizedDescriptionKey : error]
-                completionHandlerForGET(nil, NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
+                completionHandler(nil, NSError(domain: "taskForGETMethod", code: 1, userInfo: userInfo))
             }
             
             /* GUARD: Was there an error? */
@@ -57,7 +57,7 @@ class FlickrClient: NSObject {
             }
             
             /* Parse the data and use the data (happens in completion handler) */
-            self.convertDataWithCompletionHandler(data, completionHandlerForConvertData: completionHandlerForGET)
+            self.convertDataWithCompletionHandler(data, completionHandler: completionHandler)
         }
         
         /* Start the request */
@@ -69,18 +69,18 @@ class FlickrClient: NSObject {
     // MARK: Helpers
     
     // gevin raw JSON, return a usable Foundation object.
-    private func convertDataWithCompletionHandler(_ data: Data, completionHandlerForConvertData: (_ result: AnyObject?, _ error: NSError?) -> Void){
+    private func convertDataWithCompletionHandler(_ data: Data, completionHandler: (_ result: [String:AnyObject]?, _ error: NSError?) -> Void){
         
-        var parsedResult: AnyObject! = nil
+        var parsedResult: [String:AnyObject]! = nil
         do {
-            parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+            parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as! [String:AnyObject]
         } catch {
             let userInfo = [NSLocalizedDescriptionKey : "Could not parse the data as JSON: '\(data)'"]
-            completionHandlerForConvertData(nil, NSError(domain: "convertDataWithCompletionHandler", code: 1, userInfo: userInfo))
+            completionHandler(nil, NSError(domain: "convertDataWithCompletionHandler", code: 1, userInfo: userInfo))
             return
         }
         
-        completionHandlerForConvertData(parsedResult, nil)
+        completionHandler(parsedResult, nil)
     }
     
     // Create a URL from parameters

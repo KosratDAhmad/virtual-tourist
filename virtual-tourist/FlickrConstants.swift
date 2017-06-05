@@ -62,4 +62,9 @@ extension FlickrClient {
     struct FlickrResponseValues {
         static let OKStatus = "ok"
     }
+    
+    // MARK: Maximum Items Per Collection
+    struct Constants {
+        static let MaxItemsPerCollection = 21
+    }
 }

@@ -8,22 +8,57 @@
 
 import UIKit
 import MapKit
+import CoreData
 
-class PhotoViewController: UIViewController, MKMapViewDelegate {
+class PhotoViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
     
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     
     var pin: Pin?
+    var totalImage: Int?
+    var flikrImages = [UIImage]()
+    
+    let reuseIdentifier = "FlickrCell"
+    let sectionInsets = UIEdgeInsets(top: 20.0, left: 20.0, bottom: 20.0, right: 20.0)
+    let itemsPerRow: CGFloat = 3
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mapView.delegate = self
+        collectionView.delegate = self
+        collectionView.dataSource = self
         
         // Show selected pin on the map.
         addPins()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
         
-        getPhotos();
+        // Create Fetch Request to get photos in core data
+        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
+        let pred = NSPredicate(format: "pin = %@", argumentArray: [pin!])
+        fr.predicate = pred
+        
+        do {
+            let photos = try DbController.getContext().fetch(fr)
+            
+            print(photos.count)
+            if photos.count > 0 {
+                for p in photos {
+                    flikrImages.append(UIImage(data: (p as! Photo).image! as Data)!)
+                    print(UIImage(data: (p as! Photo).image! as Data)!)
+                }
+                totalImage = photos.count
+                collectionView.reloadData()
+            } else {
+                getPhotos()
+            }
+        }catch {
+            getPhotos()
+        }
     }
     
     /// Add pin location annotation to the map
@@ -61,9 +96,32 @@ class PhotoViewController: UIViewController, MKMapViewDelegate {
     
     func getPhotos() {
         
-        FlickrClient.sharedInstance().getPhotos(bboxString()) { isSuccess, error in
+        FlickrClient.sharedInstance().getPhotos(bboxString()) { results, error in
             
-            print(isSuccess)
+            DispatchQueue.main.async {
+                if let results = results {
+                    self.totalImage = results.count
+                    self.collectionView.reloadData()
+                }
+            }
+            
+            for (index, item) in (results?.enumerated())! {
+                
+                let url = URL(string: item)
+                let data = try? Data(contentsOf: url!)
+                
+                DispatchQueue.main.async {
+                    let photo = Photo(context: DbController.getContext())
+                    photo.pin = self.pin
+                    photo.image = (data! as NSData)
+                    
+                    self.flikrImages.append(UIImage(data: data!)!)
+                    let cell = self.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? FlickrPhotoCell
+                    cell?.backgroundColor = UIColor.white
+                    cell?.indicator.stopAnimating()
+                    cell?.imageView.image = UIImage(data: data!)
+                }
+            }
         }
     }
     
@@ -78,5 +136,54 @@ class PhotoViewController: UIViewController, MKMapViewDelegate {
         } else {
             return "0,0,0,0"
         }
+    }
+    
+    // MARK: UICollectionViewDelegates
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return totalImage ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! FlickrPhotoCell
+        
+        cell.backgroundColor = UIColor.black
+        cell.indicator.startAnimating()
+        cell.indicator.hidesWhenStopped = true
+        
+        print("second count \(flikrImages.count)")
+        if flikrImages.count > indexPath.row {
+            cell.backgroundColor = UIColor.white
+            cell.indicator.stopAnimating()
+            cell.imageView.image = flikrImages[indexPath.row]
+        }
+        return cell
+    }
+}
+
+extension PhotoViewController : UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        let paddingSpace = sectionInsets.left * (itemsPerRow + 1)
+        let availableWidth = view.frame.width - paddingSpace
+        let widthPerItem = availableWidth / itemsPerRow
+        
+        return CGSize(width: widthPerItem, height: widthPerItem)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
+        return sectionInsets
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return sectionInsets.left
     }
 }

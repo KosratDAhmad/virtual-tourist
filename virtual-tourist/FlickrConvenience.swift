@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import GameplayKit
 
 extension FlickrClient {
     
     // MARK: Get user information
     
-    func getPhotos(_ bboxString: String, completionHandlerForUserInfo: @escaping (_ success: Bool, _ error: String?) -> Void){
+    func getPhotos(_ bboxString: String, completionHandler: @escaping (_ images: [String]?, _ error: String?) -> Void){
         
         /* Specify parameters, method (if has {key}), and HTTP body (if POST) */
         let methodParameters = [
@@ -26,14 +27,46 @@ extension FlickrClient {
         ]
         
         /* Make the request */
-        let _ = taskForGETMethod(parameters: methodParameters as [String : AnyObject]) { (results, error) in
+        let _ = taskForGETMethod(parameters: methodParameters as [String : AnyObject]) { (parsedResults, error) in
             
             /* Send the desired value(s) to completion handler */
             if let error = error {
-                completionHandlerForUserInfo(false, error.localizedDescription)
-            } else {
-                print(results)
+                completionHandler(nil, error.localizedDescription)
+                return
             }
+            
+            /* GUARD: Is the "photos" key in our result? */
+            guard let photosDictionary = parsedResults?[FlickrResponseKeys.Photos] as? [String:AnyObject] else {
+                completionHandler(nil, "Cannot find key '\(FlickrResponseKeys.Photos)' in \(parsedResults!)")
+                return
+            }
+            
+            /* GUARD: Is the "photo" key in photosDictionary? */
+            guard let photosArray = photosDictionary[FlickrResponseKeys.Photo] as? [[String: AnyObject]] else {
+                completionHandler(nil, "Cannot find key '\(FlickrResponseKeys.Photo)' in \(photosDictionary)")
+                return
+            }
+            
+            if photosArray.count == 0 {
+                completionHandler(nil, "No Photos Found. Search Again.")
+                return
+            }
+            
+            var photoUrls = [String]()
+            for photo in photosArray {
+                
+                if let imageUrl = photo[FlickrResponseKeys.MediumURL] as? String {
+                    photoUrls.append(imageUrl)
+                }
+            }
+            
+            if photoUrls.count < Constants.MaxItemsPerCollection {
+                completionHandler(photoUrls, nil)
+                return
+            }
+            
+            var shuffled = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: photoUrls) as! [String]
+            completionHandler(Array(shuffled[0..<Constants.MaxItemsPerCollection]), nil)
         }
     }
 }

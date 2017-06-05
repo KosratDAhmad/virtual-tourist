@@ -18,6 +18,7 @@
 		F5BC13321EE0D0C0002D05A1 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5BC13301EE0D0C0002D05A1 /* Model.xcdatamodeld */; };
 		F5BC137D1EE19909002D05A1 /* DbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC137C1EE19909002D05A1 /* DbController.swift */; };
 		F5BC137F1EE1A70C002D05A1 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC137E1EE1A70C002D05A1 /* PhotoViewController.swift */; };
+		F5FAA7B01EE4C22200D6ED96 /* FlickrPhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FAA7AF1EE4C22200D6ED96 /* FlickrPhotoCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		F5BC13311EE0D0C0002D05A1 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		F5BC137C1EE19909002D05A1 /* DbController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DbController.swift; sourceTree = "<group>"; };
 		F5BC137E1EE1A70C002D05A1 /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+		F5FAA7AF1EE4C22200D6ED96 /* FlickrPhotoCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrPhotoCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +93,7 @@
 			children = (
 				F536B62B1EDE045300B6138A /* MapViewController.swift */,
 				F5BC137E1EE1A70C002D05A1 /* PhotoViewController.swift */,
+				F5FAA7AF1EE4C22200D6ED96 /* FlickrPhotoCell.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -213,6 +216,7 @@
 			files = (
 				F5182D501EE36B0900E2F25F /* FlickrConstants.swift in Sources */,
 				F536B62C1EDE045300B6138A /* MapViewController.swift in Sources */,
+				F5FAA7B01EE4C22200D6ED96 /* FlickrPhotoCell.swift in Sources */,
 				F5182D521EE36B2400E2F25F /* FlickrConvenience.swift in Sources */,
 				F536B62A1EDE045300B6138A /* AppDelegate.swift in Sources */,
 				F5BC13321EE0D0C0002D05A1 /* Model.xcdatamodeld in Sources */,
