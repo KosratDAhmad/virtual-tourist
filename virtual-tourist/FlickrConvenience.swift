@@ -69,4 +69,24 @@ extension FlickrClient {
             completionHandler(Array(shuffled[0..<Constants.MaxItemsPerCollection]), nil)
         }
     }
+
+    // MARK: Download flickr photo 
+    
+    func download(url: String, indexInArray: Int, _ completionHandler: @escaping (UIImage?, Int) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            guard let url = URL(string: url) else {
+                completionHandler(nil, indexInArray)
+                return
+            }
+            
+            do {
+                let data = try Data(contentsOf: url)
+                let image = UIImage(data: data)
+                completionHandler(image, indexInArray)
+            } catch {
+                completionHandler(nil, indexInArray)
+                return
+            }
+        }
+    }
 }

@@ -10,15 +10,14 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+class PhotoViewController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     
     var pin: Pin?
-    var totalImage: Int?
-    var flikrImages = [UIImage]()
+    var photos : [Photo?] = []
     
     let reuseIdentifier = "FlickrCell"
     let sectionInsets = UIEdgeInsets(top: 20.0, left: 20.0, bottom: 20.0, right: 20.0)
@@ -37,28 +36,22 @@ class PhotoViewController: UIViewController, MKMapViewDelegate, UICollectionView
     
     override func viewWillAppear(_ animated: Bool) {
         
-        // Create Fetch Request to get photos in core data
-        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
-        let pred = NSPredicate(format: "pin = %@", argumentArray: [pin!])
-        fr.predicate = pred
-        
-        do {
-            let photos = try DbController.getContext().fetch(fr)
-            
-            print(photos.count)
-            if photos.count > 0 {
-                for p in photos {
-                    flikrImages.append(UIImage(data: (p as! Photo).image! as Data)!)
-                    print(UIImage(data: (p as! Photo).image! as Data)!)
-                }
-                totalImage = photos.count
-                collectionView.reloadData()
-            } else {
-                getPhotos()
+        if let dbphotos = pin?.photos, dbphotos.count > 0 {
+            photos = [Photo?]()
+            for p in dbphotos {
+                photos.append(p as? Photo)
             }
-        }catch {
+        }
+        else {
             getPhotos()
         }
+    }
+    
+    /// Get new set of flikr photos.
+    ///
+    /// - Parameter sender: newCollectionButton
+    @IBAction func getNewData(_ sender: Any) {
+        getPhotos()
     }
     
     /// Add pin location annotation to the map
@@ -94,34 +87,80 @@ class PhotoViewController: UIViewController, MKMapViewDelegate, UICollectionView
         self.mapView.setRegion(region, animated: true)
     }
     
+    /// Helper method to get photo urls from Flickr api.
     func getPhotos() {
+        
+        newCollectionButton.isEnabled = false
+        // delete the current photos, if any
+        if photos.count > 0 {
+            for photo in photos {
+                if let photo = photo {
+                    DbController.getContext().delete(photo)
+                }
+            }
+        }
+        
+        // reload the collection view to show that it's been emptied
+        photos = [Photo?]()
+        collectionView.reloadData()
         
         FlickrClient.sharedInstance().getPhotos(bboxString()) { results, error in
             
-            DispatchQueue.main.async {
-                if let results = results {
-                    self.totalImage = results.count
-                    self.collectionView.reloadData()
+            guard error == nil else {
+                DispatchQueue.main.async {
+                    self.showError(title: "Error", message: error!)
+                    self.newCollectionButton.isEnabled = true
                 }
+                return
             }
             
-            for (index, item) in (results?.enumerated())! {
-                
-                let url = URL(string: item)
-                let data = try? Data(contentsOf: url!)
-                
+            guard let fetchedPhotos = results else {
                 DispatchQueue.main.async {
-                    let photo = Photo(context: DbController.getContext())
-                    photo.pin = self.pin
-                    photo.image = (data! as NSData)
-                    
-                    self.flikrImages.append(UIImage(data: data!)!)
-                    let cell = self.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as? FlickrPhotoCell
-                    cell?.backgroundColor = UIColor.white
-                    cell?.indicator.stopAnimating()
-                    cell?.imageView.image = UIImage(data: data!)
+                    self.showError(title: "Error", message: "Could not get the photos!")
+                    self.newCollectionButton.isEnabled = true
                 }
+                return
             }
+            
+            if fetchedPhotos.count <= 0 {
+                DispatchQueue.main.async {
+                    self.showError(title: "Error", message: "No photo found.")
+                    self.newCollectionButton.isEnabled = true
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.photos = [Photo?]()
+                for _ in 0..<results!.count {
+                    self.photos.append(nil)
+                }
+                self.collectionView.reloadData()
+            }
+            
+            for (index, item) in results!.enumerated() {
+                FlickrClient.sharedInstance().download(url: item, indexInArray: index, { (image, indexInArray) in
+                    guard let image = image else { return }
+                    
+                    // save the image in the database
+                    if let imageData = UIImageJPEGRepresentation(image, 0.9) {
+                        // Create a Photos object on the main thread that's gonna use it
+                        DispatchQueue.main.async {
+                            let dbphoto = Photo(context: DbController.getContext())
+                            dbphoto.image = imageData as NSData
+                            dbphoto.pin = self.pin
+                            self.photos[indexInArray] = dbphoto
+                            // Update teh collection view
+                            let cell = self.collectionView.cellForItem(at: IndexPath(item: indexInArray, section: 0)) as? FlickrPhotoCell
+                            cell?.image = dbphoto
+                        }
+                    }
+                })
+            }
+            DispatchQueue.main.async {
+                self.newCollectionButton.isEnabled = true
+            }
+            
         }
     }
     
@@ -138,30 +177,51 @@ class PhotoViewController: UIViewController, MKMapViewDelegate, UICollectionView
         }
     }
     
-    // MARK: UICollectionViewDelegates
+    private func showError(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(action)
+        present(alertController, animated: true, completion: nil)
+    }
+}
+
+// MARK: UICollectionViewDelegates
+
+extension PhotoViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return totalImage ?? 0
+        return photos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! FlickrPhotoCell
+        var cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? FlickrPhotoCell
         
-        cell.backgroundColor = UIColor.black
-        cell.indicator.startAnimating()
-        cell.indicator.hidesWhenStopped = true
-        
-        print("second count \(flikrImages.count)")
-        if flikrImages.count > indexPath.row {
-            cell.backgroundColor = UIColor.white
-            cell.indicator.stopAnimating()
-            cell.imageView.image = flikrImages[indexPath.row]
+        if cell == nil {
+            cell = FlickrPhotoCell()
         }
-        return cell
+        
+        cell?.image = photos[indexPath.item]
+        
+        return cell!
     }
 }
 
+extension PhotoViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // the photo has not been loaded, so move on
+        guard let photo = photos[indexPath.item] else {
+            return
+        }
+        
+        DbController.getContext().delete(photo)
+        photos.remove(at: indexPath.item)
+        collectionView.deleteItems(at: [indexPath])
+    }
+}
+
+// MARK: UICollectionViewDelegateFlowLayout
 extension PhotoViewController : UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView,
